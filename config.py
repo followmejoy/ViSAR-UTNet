@@ -1,12 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""
-config.py
-
-Set up experiment configuration using argparse library.
-"""
-
 import os
 import sys
 import datetime
