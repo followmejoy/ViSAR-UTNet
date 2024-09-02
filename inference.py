@@ -23,20 +23,19 @@ test_data_path = 'data/test_data'
 checkpoint_path = 'checkpoints/ViSARUTNet.pth'
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')  # 'cpu' or 'cuda'
 mask_id = 20
-mask = loadmat('mask_{}.mat'.format(mask_id))  # 严谨起见可加文件是否存在的检测
-
+mask = loadmat('mask_{}.mat'.format(mask_id))  
 ############ global variables ##########################3
 size_batch = 1  # minibatch size
 num_batch = 1  # number of batches
 
-# --------------- 读入数据---------------------------------------------
+
 transform = transforms.Compose(transforms.ToTensor())
 testdata = TrainDataset(test_data_path, transform)
 testdata_loader = DataLoader(testdata, batch_size=size_batch, shuffle=False)
 
 mask = torch.tensor(mask['mask'], dtype=torch.bool).to(device)
 print('Mask loaded successfully!')
-# --------------- 加载模型 ---------------------------------------------
+
 checkpoint = torch.load(checkpoint_path, map_location=device)
 model_opt = checkpoint['opt']
 
@@ -57,7 +56,7 @@ for i, X in enumerate(testdata_loader):
     std = (torch.var(Y, dim=[1, 2], keepdim=True).sqrt()
            * torch.tensor(np.power(10.0, -model_opt.SNR / 20.0), dtype=torch.float32))
     noise = torch.randn_like(Y) * std
-    Y = (Y + noise) * mask  # 加入噪声并进行降采样
+    Y = (Y + noise) * mask 
     Y = torch.cat((Y.real, Y.imag), dim=2)
     X = torch.cat((X, torch.zeros_like(X)), dim=2)
     dec_logits, _, _, _ = model(Y, X)
