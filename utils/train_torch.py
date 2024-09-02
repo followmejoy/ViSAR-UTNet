@@ -1,13 +1,3 @@
-#!/usss;k/bin/env python
-# -*- coding: utf-8 -*-
-
-"""
-train_RATIR_d2.py
-author: xhchrn
-        chernxh@tamu.edu
-
-This file includes codes that set up training, do the training actually.
-"""
 
 from collections import OrderedDict
 import sys, os
@@ -24,20 +14,19 @@ def inference_mode():
 class ImageDataset(Dataset):
     def __init__(self,mode='Train', num_per_cat=300):
         urb1 = loadmat('data/urb1_rand.mat')
-        siz = urb1['data'].shape[2] #图片的张数
-        if mode == 'Train':#训练取前三百张
+        siz = urb1['data'].shape[2] 
+        if mode == 'Train':
             assert num_per_cat <= 300, 'Please try another num_per_cat <= 300!'
             urb1 = torch.tensor(urb1['data'], dtype=torch.float32)[...,:num_per_cat]
-        elif mode == 'Valid':#验证取300-350张
+        elif mode == 'Valid':
             assert num_per_cat <= 50, 'Please try another num_per_cat <= 50!'
             urb1 = torch.tensor(urb1['data'], dtype=torch.float32)[...,300:300+num_per_cat]
-        elif mode == 'Test':#测试选350以后的所有
+        elif mode == 'Test':
             assert num_per_cat <= siz-350, f'Please try another num_per_cat <= {siz-350}!'
             urb1 = torch.tensor(urb1['data'], dtype=torch.float32)[...,350:350+num_per_cat]
         else:
             raise ValueError(f'Expected mode: Train, Valid, Test, got {mode}')
-        self.data_all = urb1.unsqueeze(0).permute(3,0,1,2) #unsqueeze()增加张量维度；permute()调整张量维度
-
+        self.data_all = urb1.unsqueeze(0).permute(3,0,1,2) 
     def __len__(self):
         return self.data_all.shape[0]
 
@@ -57,16 +46,16 @@ class VideoDataset(Dataset):
     def __getitem__(self, index):
         file_name = self.file_list[index]
         file_path = os.path.join(self.folder_path, file_name)
-        data = loadmat(file_path)  # 加载.mat文件
-        # 假设.mat文件中有一个名为'data'的变量
-        tensor_data = torch.tensor(data['data'],dtype=torch.float32)  # 转换为PyTorch张量
+        data = loadmat(file_path)  
+
+        tensor_data = torch.tensor(data['data'],dtype=torch.float32) 
         tensor_data = tensor_data.unsqueeze(0)
-        # tensor_data=tensor_data.unsqueeze(0).permute(0,3,1,2) # 原始input data: W*H*D,改为D*W*H
+        # tensor_data=tensor_data.unsqueeze(0).permute(0,3,1,2) 
 
         return tensor_data
 
 
-# 使用示例
+
 #dataset = CustomDataset(folder_path='path/to/folder')
 #data_loader = torch.utils.data.DataLoader(dataset, batch_size=32, shuffle=True)
 
@@ -87,12 +76,12 @@ def setup_input_sc (test, tbs, vbs, val_step, its, SNR,
         std = (torch.var (y, dim=[3, 4], keepdim=True).sqrt()
             * torch.tensor(np.power (10.0, -SNR/20.0), dtype=torch.float32))
         noise = torch.randn_like(y) * std
-        y = (y + noise) * mask  #加入噪声并进行降采样
+        y = (y + noise) * mask 
         x_.append(x.cpu())
         y_.append(y.cpu())
 
     if not test:
-        # val_nums = len(train_loader) // val_step #//表示去商的整数部分
+        # val_nums = len(train_loader) // val_step 
         # val_nums = val_nums+1 if its%len(train_loader) else val_nums
         val_nums = len(valid_loader)
         for _ in range(val_nums):
@@ -136,7 +125,7 @@ def do_training (config, model, train_data, valid_data):
         optimizer = torch.optim.Adam(model.parameters(), lr=config.init_lr)
 
     itmax = 0
-    for fn in os.listdir(config.expbase):#检验模型是否已经训练好，若训练好就不能继续训练了
+    for fn in os.listdir(config.expbase):
         sp1 = fn.split(config.model)  #config.model=LISTA_gen_T6_t_s_40
         if len(sp1) < 2:
             continue
@@ -146,26 +135,17 @@ def do_training (config, model, train_data, valid_data):
             return
         it = int(sp2)
         itmax = it if it > itmax else itmax
-    if itmax: #模型训练了一半
+    if itmax: 
         sys.stdout.write ('Half-trained model found. Loading...\n')
         state = load_trainable_variables (model, config.modelfn+str(itmax), opt=optimizer)
     else:
         state = {}
 
-    nmse_hist_val = state.get('nmse_hist_val', [])#该方法会返回键对应的值，如果键不存在，则返回指定的默认值（如果提供了默认值）或者返回None
+    nmse_hist_val = state.get('nmse_hist_val', [])
     best_count = state.get('best_count', 0)
     i = state.get('i', 0)
 
     brk = False
-    ###初始化
-    #real = torch.rand(1,1,10,512,512) - 0.5
-    #imaginary = torch.rand(1,1,10,512,512) - 0.5
-    # 归一化为单位模
-    #magnitude = torch.sqrt(real ** 2 + imaginary ** 2)  # 计算模
-    #real = real / magnitude
-    #imaginary = imaginary / magnitude
-    # 构建复数张量
-    #Z_0= torch.complex(real, imaginary)
     X_0=torch.zeros(1,1,config.D,config.M,config.N)
     U_0=torch.complex(torch.zeros(1,1,config.D,config.M,config.N),torch.zeros(1,1,config.D,config.M,config.N))
     Z_0=U_0
@@ -199,7 +179,7 @@ def do_training (config, model, train_data, valid_data):
             db_tr = 10. * torch.log10( nmse_tr )
 
             if i % config.val_step == 0:
-                y_val, x_val = vals.pop() #pop()函数用于移除列表中的一个元素(默认最后一个元素)，并且返回该元素的值
+                y_val, x_val = vals.pop()
                 y_val, x_val = y_val.cuda(), x_val.cuda()
 
                 if config.net=='LISTA_gen' or 'LISTA_gen_align':
@@ -226,7 +206,7 @@ def do_training (config, model, train_data, valid_data):
                             .format(epoch=epoch, i=i, loss_tr=nmse_tr,
                                     db_tr=db_tr, loss_val=nmse_val,
                                     db_val=db_val, db_best_val=db_best_val))
-                sys.stdout.flush()#Python 会自动处理缓冲区的刷新。只有在特定的情况下，当你需要确保输出立即显示时才需要使用该方法。
+                sys.stdout.flush()
                 if i % (10 * config.val_step) == 0:
                     print('')
                 age_of_best = (len(nmse_hist_val) -
@@ -239,9 +219,9 @@ def do_training (config, model, train_data, valid_data):
                     best_count += 1
                     if best_count >= 15:
                         best_count == 0
-                        for fn in os.listdir(config.expbase):#os.listdir()是Python中os模块提供的一个函数，用于获取指定目录中的所有文件和文件夹的列表。
+                        for fn in os.listdir(config.expbase):
                             if len(fn.split(config.model)) == 2:
-                                os.remove(os.path.join(config.expbase, fn))#os.path.join()是Python中os.path模块提供的一个函数，用于将多个路径组合成一个有效的路径。
+                                os.remove(os.path.join(config.expbase, fn))
                     state['nmse_hist_val'] = nmse_hist_val
                     state['best_count'] = best_count
                     state['i'] = i
