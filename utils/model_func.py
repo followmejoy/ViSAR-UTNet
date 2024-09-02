@@ -1,5 +1,4 @@
 '''
-@Description: The implimention of SACNN, https://github.com/guoyii/SACNN/tree/master
 @Author: LiMin
 @Date: 2024-05-7
 '''
