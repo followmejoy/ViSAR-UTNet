@@ -51,8 +51,8 @@ net_arg.add_argument (
 # ViSARUTNet Network arguments
 ViSARUTNet_arg = parser.add_argument_group ('ViSARUTNet')
 ViSARUTNet_arg.add_argument('-d_model', type=int, default=1024)
-ViSARUTNet_arg.add_argument('-d_k', type=int, default=128)  # 64
-ViSARUTNet_arg.add_argument('-d_v', type=int, default=128)  # 64
+ViSARUTNet_arg.add_argument('-d_k', type=int, default=128)  
+ViSARUTNet_arg.add_argument('-d_v', type=int, default=128)  
 ViSARUTNet_arg.add_argument('-d_ff', type=int, default=2048)
 ViSARUTNet_arg.add_argument('-n_heads', type=int, default=8)
 ViSARUTNet_arg.add_argument('-n_layers', type=int, default=6)
@@ -65,8 +65,7 @@ ViSARUTNet_arg.add_argument('-weighted_model', action='store_true')
 # Problem arguments
 prob_arg = parser.add_argument_group ('prob')
 prob_arg.add_argument(
-    '-M', '--M', nargs='*', type=int, default=512,#小图片的时候是320
-    help="Dimension of measurements.")
+    '-M', '--M', nargs='*', type=int, default=512,
 prob_arg.add_argument(
     '-N', '--N', nargs='*', type=int, default=512,
     help="Dimension of sparse codes.")
@@ -86,7 +85,7 @@ prob_arg.add_argument (
 """Training arguments."""
 train_arg = parser.add_argument_group ('train')
 train_arg.add_argument (
-    '-lr', '--init_lr', type=float, default=1e-4,#之前是5e-5
+    '-lr', '--init_lr', type=float, default=1e-4,
     help="Initial learning rate.")
 train_arg.add_argument (
     '-tbs', '--tbs', type=int, default=15,
