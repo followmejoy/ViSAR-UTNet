@@ -19,8 +19,8 @@ from scipy.io import loadmat
 import matplotlib.pyplot as plt
 from utils.SARop import CSA_echo
 
-test_data_path = 'data/test_data1'
-checkpoint_path = 'checkpoints/ViSARUTNet_d1_m1024_snrinf_samp70_epoch100.pth'
+test_data_path = 'data/test_data'
+checkpoint_path = 'checkpoints/ViSARUTNet.pth'
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')  # 'cpu' or 'cuda'
 mask_id = 20
 mask = loadmat('mask_{}.mat'.format(mask_id))  # 严谨起见可加文件是否存在的检测
