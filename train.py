@@ -49,7 +49,7 @@ def create_model(opt, checkpoint_path=None):
 
 def main(opt):
     print('Loading training and development data..')
-    # --------------- 读入数据---------------------------------------------
+
     transform = transforms.Compose(transforms.ToTensor())
     traindata = TrainDataset(opt.train_data_path, transform)
     evaldata = TrainDataset(opt.eval_data_path, transform)
@@ -124,7 +124,7 @@ def train(model, criterion, optimizer, train_iter, model_state):  # TODO: fix op
         std = (torch.var(Y, dim=[1, 2], keepdim=True).sqrt()
                * torch.tensor(np.power(10.0, -opt.SNR / 20.0), dtype=torch.float32))
         noise = torch.randn_like(Y) * std
-        Y = (Y + noise) * opt.mask  # 加入噪声并进行降采样
+        Y = (Y + noise) * opt.mask 
         Y = torch.cat((Y.real, Y.imag), dim=2)
         X = torch.cat((X, torch.zeros_like(X)), dim=2)
         dec_logits, _, _, _ = model(Y, X)
@@ -136,7 +136,7 @@ def train(model, criterion, optimizer, train_iter, model_state):  # TODO: fix op
             clip_grad_norm(model.trainable_params(), float(opt.max_grad_norm))
         optimizer.step()
         optimizer.update_lr()
-        model.proj_grad()  # works only for weighted transformer
+        model.proj_grad()  
 
         train_loss_total += float(step_loss.item())
         model_state['train_steps'] += 1
@@ -169,7 +169,7 @@ def eval(model, opt, criterion, dev_iter):
             std = (torch.var(Y, dim=[1, 2], keepdim=True).sqrt()
                    * torch.tensor(np.power(10.0, -opt.SNR / 20.0), dtype=torch.float32))
             noise = torch.randn_like(Y) * std
-            Y = (Y + noise) * opt.mask  # 加入噪声并进行降采样
+            Y = (Y + noise) * opt.mask  
             Y = torch.cat((Y.real, Y.imag), dim=2)
             X = torch.cat((X, torch.zeros_like(X)), dim=2)
             dec_logits, _, _, _ = model(Y, X)
@@ -215,7 +215,7 @@ if __name__ == '__main__':
     parser.add_argument('-model_path', type=str, default='checkpoints')
 
     opt = parser.parse_args()
-    mask = loadmat('mask_' + str(opt.sample_rate) + '.mat')  # 严谨起见可加文件是否存在的检测
+    mask = loadmat('mask_' + str(opt.sample_rate) + '.mat')  
     opt.mask = torch.cuda.BoolTensor(mask['mask'])
     print('Mask loaded successfully!')
     thetas = loadmat('thetas.mat')
