@@ -3,8 +3,6 @@
 
 """
 config.py
-author: xhchrn
-        chernxh@tamu.edu
 
 Set up experiment configuration using argparse library.
 """
