@@ -14,12 +14,6 @@ from torch import nn
 from skimage.metrics import structural_similarity
 import matplotlib.pyplot as plt
 from utils.train_torch import do_training
-#try :
-#    from PIL import Image
-#    from sklearn.feature_extraction.image \
-#            import extract_patches_2d, reconstruct_from_patches_2d
-#except Exception as e :
-#    pass
 
 def setup_model (config , **kwargs) :
     untiedf = 'u' if config.untied else 't'
@@ -78,7 +72,7 @@ def run_sc_test(config):
     std = (torch.var(y, dim=[3, 4], keepdim=True).sqrt()
            * torch.tensor(np.power(10.0, -config.SNR / 20.0), dtype=torch.float32))
     noise = torch.randn_like(y) * std
-    y = (y + noise) * config.mask  # 加入噪声并进行降采样
+    y = (y + noise) * config.mask 
 
 
     X = model.inference(y)
@@ -90,10 +84,10 @@ def run_sc_test(config):
     #plt.figure(), plt.imshow(X[0,0,6,:,:].cpu(), cmap='gray')
     x_nni = X[0, 0, :, :].cpu().numpy()
     x_lab=test_x[0,0,fram_id,:, :].cpu().numpy()
-    mse_nni = np.mean((x_lab - x_nni) ** 2)  # 计算均方误差（MSE）
-    max_valuenni = np.max(x_nni)  # 张量1的动态范围
+    mse_nni = np.mean((x_lab - x_nni) ** 2) 
+    max_valuenni = np.max(x_nni)  
     rmse_nni = np.sqrt(mse_nni)
-    psnr_nni = 20 * np.log10(max_valuenni / rmse_nni)  # 计算PSNR
+    psnr_nni = 20 * np.log10(max_valuenni / rmse_nni) 
     ssim_nni = structural_similarity(x_lab, x_nni, gaussian_weights=True)
     print('rmse', 'psnr', 'ssim')
     print(rmse_nni,psnr_nni,ssim_nni)
@@ -108,7 +102,7 @@ def main ():
     config, _ = get_config()
     # set visible GPUs
     torch.cuda.set_device(int(config.gpu))
-    mask = loadmat('mask_'+str(config.sample_rate)+'.mat')  # 严谨起见可加文件是否存在的检测
+    mask = loadmat('mask_'+str(config.sample_rate)+'.mat') 
     config.mask = torch.cuda.BoolTensor(mask['mask'])
     print('Mask loaded successfully!')
     thetas = loadmat('thetas.mat')
